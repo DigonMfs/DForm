@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Login Form</title>
+        <link rel="stylesheet" href="./resources/css/style.css"/>
+
+    </head>
+    <body onload="document.getElementById('loginfield').focus();">
+        <div id="login">
+        <h2>Please log in</h2>
+        <form name="loginForm" method="POST" action="j_security_check">
+            <table width="100%">
+            <tr><td>Username</td>
+                <td> <input type="text" id="loginfield" name="j_username" size="20"/></td>
+            </tr>
+            <tr><td>Password</td>
+                <td>  <input type="password"  size="20" name="j_password"/></td>
+            </tr>
+            </table>
+            <input style="position:absolute;margin-top:20px;width:100px;left:50%;margin-left:-50px" type="submit" value="Submit"/>
+            <a style="font-size:x-small;position:absolute;top:10px;right:10px;" href="http://www.digon.be">&copy; Digon</a>
+        </form>       
+        </div>
+    </body>
+</html>

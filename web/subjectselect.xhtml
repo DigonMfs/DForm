@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:dialog visible="#{controllerBean.selectingSubject}" 
+              rendered="#{controllerBean.selectingSubject}"
+              modal="true"
+              header="Choose a patient"
+              closable="true" closeOnEscape="true"
+              hideEffect="fade"
+              showEffect="fade">
+        <p:ajax event="close" listener="#{controllerBean.subjectPopupClose}"/>
+
+        <h:panelGrid columns="1">
+            <h:outputLabel for="fsac" value="Enter a search word"/>
+            <p:autoComplete value="#{modelBean.selectedSubjectAutoComplete}" 
+                            id="fsac"
+                            completeMethod="#{controllerBean.subjectAutocompleteChange}"
+                            var="fs"
+                            itemValue="#{fs}"
+                            converter="#{formSubjectConverter}">
+                <p:ajax event="itemSelect" update="belowmenu" listener="#{controllerBean.subjectListener}"/>
+                <p:column>
+                    <h:outputText value="#{fs.alfacode}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{fs.name}"/>
+                </p:column>
+
+            </p:autoComplete>
+            <p:commandButton  value="Create new patient record" actionListener="#{controllerBean.newSubjectAction}" update="belowmenu"/>   
+        </h:panelGrid>
+    </p:dialog>
+</ui:composition>

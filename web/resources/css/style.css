@@ -1,0 +1,49 @@
+/* 
+    Document   : style
+    Created on : 26-aug-2012, 19:30:52
+    Author     : rombouts
+    Description:
+        Purpose of the stylesheet follows.
+*/
+body {
+    font-family: arial, sans-serif;
+}
+
+#login {
+    width:350px;
+    height:180px;
+    position:absolute;
+    top:40%;
+    left:50%;
+    margin-left:-150px;
+    margin-top:-75px;
+    border:solid 1px darkgrey;
+    padding:20px;
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#EEEEEE', endColorstr='#CCCCCC');
+    background: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#CCCCCC)); 
+    background: -moz-linear-gradient(top,  #EEEEEE,  #CCCCCC); 
+}
+
+
+.ui-datatable-odd 
+{
+    background-color:lightgray !important;         
+
+}
+
+
+.formfill {
+    border:none;
+    padding:10px;
+    margin-top:10px;
+}
+
+.ui-widget-content {
+    border:none;
+}
+
+.ui-panelgrid .ui-panelgrid-cell{
+    border:none !important;
+}
+

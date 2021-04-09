@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:panelGroup styleClass="formfill" rendered="#{controllerBean.formVisible}"> 
+        <p:growl />
+    
+        <ui:include src="#{modelBean.formSourceUrl}"/> 
+    </h:panelGroup>
+    <h:panelGroup styleClass="formfill" rendered="#{controllerBean.formVisible}">
+        <p:messages />
+        <p:commandButton rendered="#{not modelBean.finalSubmission}" value="Save as draft" actionListener="#{controllerBean.formSubmitDraft}" update="belowmenu"/>
+        <p:commandButton rendered="#{not modelBean.finalSubmission}" value="Save as final" actionListener="#{controllerBean.formSubmitFinal}" update="belowmenu"/>
+        <h:outputText rendered="#{modelBean.finalSubmission}">This form can not be stored - it has been submitted as 'final' already</h:outputText>
+        <p:commandButton rendered="#{controllerBean.admin and modelBean.finalSubmission}" value="Back to draft" actionListener="#{controllerBean.backToDraft}" update="belowmenu"/>
+    </h:panelGroup>
+
+</ui:composition>
