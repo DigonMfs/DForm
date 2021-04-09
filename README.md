@@ -29,16 +29,16 @@ Environment :
  * Create an admin user in table users, use md5 for the password hash : insert into users (uuid, name, login, passwd_hash, segment) values (uuid(),'Test Name','test',md5('testpassword'),1);
  * In the Payara server, create a datasource with JDBC-name : jdbc/DFormPool, referring to a database with driver org.mariadb.jdbc.MariaDbDataSource
  * In the Payara server, configure security as follows :
-  * Configurations,Server-config/Security/Realms, make a realm called "DFormRealm"
-  * JAAS Context : jdbcRealm, 
-  * jNDI : jdbc/DFormPool
-  * User Table : users
-  * User Name Column : login
-  * Password Column : passwd_hash
-  * Group Table : usergroups
-  * Group table User Name Column : user_login
-  * Group Name Column : group_id
-  * Digest Algorithm : MD5
+   * Configurations,Server-config/Security/Realms, make a realm called "DFormRealm"
+   * JAAS Context : jdbcRealm, 
+   * jNDI : jdbc/DFormPool
+   * User Table : users
+   * User Name Column : login
+   * Password Column : passwd_hash
+   * Group Table : usergroups
+   * Group table User Name Column : user_login
+   * Group Name Column : group_id
+   * Digest Algorithm : MD5
 
 
  * Optionally create a master password for encryption of all submitted data. If this is set, all submission-data will be AES-encrypted. If this password is lost, there is no way back. To set a master password "ChangeThisMasterPassword" with a salt "ThisIsASalt", do : insert into parameters (mp_hash,mp_salt) values (unhex(sha2("ChangeThisMasterPasswordThisIsASalt",256)),'ThisIsASalt');
