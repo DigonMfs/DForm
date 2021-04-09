@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:panelGroup rendered="#{controllerBean.reportsScreenVisible}">
+        <p style="font-size:xx-small">Legend : Status : R:Registration, A:Audiology intake, Ax:Audiology followup, Dx:Development followup. <b>Bold</b>=final, <i>italic</i>=draft. Click to select patient.</p>
+        <h1>Patient data submission status </h1>
+        <p:dataTable  rendered="#{controllerBean.reportsScreenVisible}" 
+                      id="submissionStatusTable" 
+                      value="#{reportModel.submissionStatusForSubjects }" 
+                      var="var"
+                      rowKey="#{var.id}"
+                      selectionMode="single" 
+                      selection="#{reportController.selectedSubjectInReport}"
+                      filteredValue="#{reportModel.filteredSubmissionStatus}">
+            <p:ajax event="rowSelect" update="belowmenu" listener="#{reportController.selectListener()}"/>
+            <p:column headerText="Name" sortBy="#{name}" filterBy="#{var.name}" filterMatchMode="contains">
+                <h:outputText value="#{var.name}"/>
+            </p:column>
+            <p:column headerText="Alfacode" sortBy="#{alfacode}" filterBy="#{var.alfacode}" filterMatchMode="contains">
+                <h:outputText value="#{var.alfacode}"/>
+            </p:column>
+            <p:column headerText="Created by" sortBy="#{var.createdBy}" filterBy="#{var.createdBy}" filterMatchMode="contains">
+                <h:outputText value="#{var.createdBy}"/>
+            </p:column>
+            <p:column style="text-align:left" headerText="Status" sortBy="#{var.properties['statusdescription']}" filterBy="#{var.properties['statusdescription']}" filterMatchMode="contains">
+                <h:outputText escape="false" value="#{var.properties['statusdescription']}"/>
+            </p:column>
+        </p:dataTable>
+    </h:panelGroup>
+
+</ui:composition>

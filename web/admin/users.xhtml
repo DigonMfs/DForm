@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:form>
+        <h:panelGroup rendered="#{controllerBean.usersScreenVisible}">
+            <h1>User editor </h1>
+            <p:commandButton actionListener="#{userEditorController.newUserEvent}" value="Create new user" update="belowmenu"/>
+            <p:commandButton actionListener="#{userEditorController.editUserEvent}" value="Edit user" update="belowmenu"/>
+            <p:commandButton actionListener="#{userEditorController.passwordEvent}" value="Set password" update="belowmenu"/>
+            <p:selectBooleanCheckbox itemLabel="Show patients for #{userEditorModel.currentUser.name}" value="#{userEditorController.showAccessibleSubjects}" >
+                <p:ajax update="belowmenu"/>
+            </p:selectBooleanCheckbox>
+            <p:dataTable id="userTable" value="#{userEditorModel.userList}" var="var"
+                         paginator="true" paginatorPosition="bottom" rows="10"
+                         selectionMode="single" rowKey="#{var.id}"
+                         selection="#{userEditorController.selectedUserInList}"
+                         filteredValue="#{userEditorModel.filteredUserList}"
+                         >
+                <p:ajax event="rowSelect" update="belowmenu" listener="#{userEditorController.selectListener}"/>
+
+                <p:column headerText="Name" sortBy="#{name}" filterBy="#{var.name}" filterMatchMode="contains">
+                    <h:outputText value="#{var.name}"/>
+                </p:column>
+                <p:column headerText="Login" sortBy="#{login}" filterBy="#{var.login}" filterMatchMode="contains">
+                    <h:outputText value="#{var.login}"/>
+                </p:column>
+                <p:column headerText="City" sortBy="#{var.city}" filterBy="#{var.city}" filterMatchMode="contains">
+                    <h:outputText value="#{var.city}"/>
+                </p:column>
+                <p:column headerText="Center" sortBy="#{var.segment}" filterBy="#{var.segment}" filterMatchMode="contains">
+                    <h:outputText value="#{var.segment}"/>
+                </p:column>
+            </p:dataTable>
+        </h:panelGroup>
+
+    </h:form>
+    <br/>
+    <h:form>
+        <h:panelGroup style="margin-top:10px" rendered="#{controllerBean.usersScreenVisible and userEditorController.showAccessibleSubjects}">
+            <h:outputText rendered="#{userEditorController.showAccessibleSubjects}" value="#{userEditorModel.currentUser.name}"/>
+            <p:dataTable id="userTable" value="#{userEditorModel.accessibleSubjects.subjects}" var="var"
+                         paginator="true" paginatorPosition="bottom" rows="10"
+                         selectionMode="single" rowKey="#{var.id}" filteredValue="#{userEditorModel.accessibleSubjects.filteredSubjects}">
+
+                <p:column headerText="Name" sortBy="#{name}" filterBy="#{var.name}" filterMatchMode="contains">
+                    <h:outputText value="#{var.name}"/>
+                </p:column>
+                <p:column headerText="Login" sortBy="#{alfacode}" filterBy="#{var.alfacode}" filterMatchMode="contains">
+                    <h:outputText value="#{var.alfacode}"/>
+                </p:column>
+                <p:column headerText="Created by" sortBy="#{var.createdBy}" filterBy="#{var.createdBy}" filterMatchMode="contains">
+                    <h:outputText value="#{var.createdBy}"/>
+                </p:column>
+                <p:column headerText="Access based on user group" sortBy="#{var.regularAccess}" filterBy="#{var.regularAccess}" filterMatchMode="contains">
+                    <h:outputText value="#{var.regularAccess}"/>
+                </p:column>
+            </p:dataTable>
+
+        </h:panelGroup>
+    </h:form>
+    <h:form>
+        <p:dialog visible="#{userEditorController.renderSingleUserEditor}" header="Edit user data" rendered="#{userEditorController.renderSingleUserEditor}"  modal="true"
+                  closable="true" closeOnEscape="true"
+                  hideEffect="fade"
+                  showEffect="fade">
+            <p:ajax event="close" listener="#{userEditorController.cancelEvent}" update="belowmenu"/>                         
+            <h:panelGroup> <!-- PanelGroup REQUIRED or commandbutton does not work (setter not called) -->
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="Login" for="userLogin"></h:outputLabel>
+                    <p:inputText size="15" required="true" maxlength="100" id="userLogin" value="#{userEditorModel.currentUser.login}"/>
+                    <h:outputLabel value="Name" for="userName"></h:outputLabel>
+                    <p:inputText size="60" required="true" maxlength="100" id="userName" value="#{userEditorModel.currentUser.name}"/>
+                    <h:outputLabel value="Address" for="userStreet"></h:outputLabel>
+                    <p:inputText size="60" maxlength="100" id="userStreet" value="#{userEditorModel.currentUser.address}"/>
+                    <h:outputLabel value="Postal code" for="userZip"></h:outputLabel>
+                    <p:inputText size="10" maxlength="10" id="userZip" value="#{userEditorModel.currentUser.zip}"/>
+                    <h:outputLabel value="City" for="userName"></h:outputLabel>
+                    <p:inputText size="60" maxlength="100" id="userCity" value="#{userEditorModel.currentUser.city}"/>
+                    <h:outputLabel value="Email" for="userEmail"></h:outputLabel>
+                    <p:inputText size="60" maxlength="100" id="userEmail" value="#{userEditorModel.currentUser.email}"/>
+                    <h:outputLabel value="Center" for="userSegment"></h:outputLabel>
+                    <p:selectOneRadio  required="true"  id="userSegment" value="#{userEditorModel.currentUser.segment}" >
+                        <f:selectItems value="#{userEditorController.segmentItems}"></f:selectItems>
+                    </p:selectOneRadio>
+
+                    <h:outputLabel value="Groups" for="userGroups"></h:outputLabel>
+                    <p:selectManyCheckbox  id="userGroups" value="#{userEditorModel.currentUser.groups}" >
+                        <f:selectItems value="#{userEditorController.groupItems}"></f:selectItems>
+                    </p:selectManyCheckbox>
+
+                </h:panelGrid>
+                <p:commandButton actionListener="#{userEditorController.saveAndCloseEvent}" value="Save" update="belowmenu"/>
+                <p:messages/>
+            </h:panelGroup>
+        </p:dialog>
+    </h:form>
+    <h:form>
+        <p:dialog visible="#{userEditorController.passPopupVisible}"  rendered="#{userEditorController.passPopupVisible}"  modal="true"
+                  closable="true" closeOnEscape="true"
+                  hideEffect="fade"
+                  showEffect="fade"
+                  header="New password"
+                  >
+
+            <p:ajax event="close" listener="#{userEditorController.passwordCancelEvent}" update="belowmenu"/>                         
+
+            <h:panelGroup> <!-- PanelGroup REQUIRED or commandbutton does not work (setter not called) -->
+                <h:outputText>The proposed password is automatically generated</h:outputText>
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="New password" for="userPassword"></h:outputLabel>
+                    <p:inputText size="15" required="true" maxlength="100" id="userPassword"  value="#{userEditorModel.currentUser.password}"/>
+                </h:panelGrid>
+                <p:commandButton actionListener="#{userEditorController.passwordSetEvent}" value="Save" update="belowmenu"/>
+                <p:messages/>
+            </h:panelGroup>
+
+        </p:dialog>
+    </h:form>
+</ui:composition>

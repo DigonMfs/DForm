@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Digon DForm V 1.06</title>
+        <h:outputStylesheet library="css" name="style.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    <h:body>
+        <p:idleMonitor timeout="3600000" onidle="PF('idleDialog').show();" />
+        <p:dialog header="Sessie verlopen" widgetVar="idleDialog" closable="false" modal="true">
+            <h:outputText value="Door lange inactiviteit is uw sessie verlopen. Gelieve het scherm te 'vernieuwen' met de vernieuw-knop in de browser." />
+        </p:dialog>
+        <h:form id="menu">
+            <h:outputText value="#{controllerBean.controllerMessage}"> 
+            </h:outputText>
+            <p:menubar>
+                <p:menuitem value="Patient" id="CHOOSE_PATIENT" actionListener="#{controllerBean.selectSubject}" update="belowmenu"/>
+                <p:menuitem value="Forms" id="FORMS_MENU" actionListener="#{controllerBean.menuAction}" icon="ui-icon ui-icon-document"  update="belowmenu"/>
+                <p:menuitem value="Report" id="REPORTS_MENU" actionListener="#{controllerBean.menuAction}"  update="belowmenu"/> 
+                <p:menuitem rendered="#{controllerBean.admin}" value="Admin" url="admin/admin.xhtml" icon="ui-icon ui-icon-gear"  ajax="false"/>
+                <p:menuitem value="Log off" id="LOGOFF"  actionListener="#{controllerBean.menuAction}"  update="belowmenu"/>
+            </p:menubar>
+            <h:outputLink style="font-size:x-small;float:right;top:15px;right:20px;position:absolute;text-decoration:underline;" value="http://www.digon.be"><h:outputText value="Digon"/></h:outputLink>
+            <p:panel header="Data is protected" rendered="#{modelBean.masterPassword.masterPasswordShouldBeSet}"> 
+                <h:outputText value="Patient submission data is protected by an in-memory master password in order to ensure privacy in case of a data leak."/>
+                <h:outputText value="The password is not stored on disk and has to be re-entered by the administrator after each server restart or software update. This password has not been entered yet, and hence none of the functionality of this software is available. "></h:outputText>
+                <h:outputText value="The administrator can use the Admin-menu to enter the master password." />
+            </p:panel>
+        </h:form>
+        <h:panelGroup layout="block" id="belowmenu" rendered="#{not modelBean.masterPassword.masterPasswordShouldBeSet}">
+            <h:form id="selectors">
+                <p:toolbar>
+                    <f:facet name="left">
+                    <h:outputText rendered="#{(empty modelBean.selectedSubject or empty modelBean.selectedSubject.id or (modelBean.selectedSubject.id eq 0)) and (not modelBean.selectedSubject.new)}" value="First select a patient ..."/>
+                    <h:outputText rendered="#{not (empty modelBean.selectedSubject or empty modelBean.selectedSubject.id or (modelBean.selectedSubject.id eq 0))}" value="#{modelBean.selectedSubject.alfacode} - #{modelBean.selectedSubject.name} "/>
+                    </f:facet>
+                    <f:facet name="right">
+                    <h:outputText style="margin-left:20px" value="#{modelBean.selectedForm.title}"/>
+                    </f:facet>
+                </p:toolbar>
+
+                <ui:include src="subjectselect.xhtml" />    
+
+
+                <ui:include src="formselect.xhtml" />    
+            </h:form>
+            <h:form id="repform">
+                <ui:include src="reports.xhtml"/>
+            </h:form>
+            <h:form id="Form"><!-- This form id is shown in the validation messages -->
+                <ui:include src="formfill.xhtml"/>
+            </h:form>
+        </h:panelGroup>
+    </h:body>
+</html>
+

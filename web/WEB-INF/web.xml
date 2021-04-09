@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+        
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.VALIDATE_EMPTY_FIELDS</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>formsource</servlet-name>
+        <servlet-class>be.digon.dform.FormSourceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>formsource</servlet-name>
+        <url-pattern>/formsource</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            60
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>index.xhtml</welcome-file>
+    </welcome-file-list>
+    <security-constraint>
+        <display-name>Allow formsource servlet</display-name>
+        <web-resource-collection>
+            <web-resource-name>FormSource</web-resource-name>
+            <description>The formsource servlet provides its own constraint mechanism, it is called from ui:include and hence standard container managed authentication is not an option</description>
+            <url-pattern>/formsource</url-pattern>
+        </web-resource-collection>
+    </security-constraint>
+    <security-constraint>
+        <display-name>Auth. required for everything else</display-name>
+        <web-resource-collection>
+            <web-resource-name>All</web-resource-name>
+            <description/>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>Followup</role-name>
+            <role-name>Admin</role-name>
+            <role-name>Initiate</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <security-constraint>
+        <display-name>Admin access in admin folder</display-name>
+        <web-resource-collection>
+            <web-resource-name>Admin</web-resource-name>
+            <description>Admin access</description>
+            <url-pattern>/admin</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>Admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <security-constraint>
+        <display-name>Allow reading css</display-name>
+        <web-resource-collection>
+            <web-resource-name>/resources/css/*</web-resource-name>
+            <description>Allow CSS</description>
+            <url-pattern>/resources/css/*</url-pattern>
+        </web-resource-collection>
+    </security-constraint>
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>DFormRealm</realm-name>
+        <form-login-config>
+            <form-login-page>/login.html</form-login-page>
+            <form-error-page>/login_err.html</form-error-page>
+        </form-login-config>
+    </login-config>
+    <security-role>
+        <description/>
+        <role-name>Followup</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>Admin</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>Initiate</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>UseMySubjects</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>UseSegmentSubjects</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>UseAllSubjects</role-name>
+    </security-role>
+    <security-role>
+        <description>Can export results (excel) on all subjects</description>
+        <role-name>ReportsOnAllSubjects</role-name>
+    </security-role>
+    <resource-ref>
+        <description>jdbc:mysql://edvard.lan.digon.be:3306/dformtest</description>
+        <res-ref-name>DFormPool</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+    </resource-ref>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error.xhtml</location>
+    </error-page>
+</web-app>

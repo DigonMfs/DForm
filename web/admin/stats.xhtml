@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:form>
+        <h:panelGroup rendered="#{controllerBean.statsScreenVisible}">
+            <h1>Statistics </h1>
+            <p:panelGrid columns="2">
+                <p:chart type="pie" model="#{statModel.segmentPatientStats}"  style="width:400px;height:300px" />
+                <p:chart type="bar" model="#{statModel.subPerTypeStats}"  style="width:800px;height:300px" />
+            </p:panelGrid>
+            <p:panelGrid columns="3">
+                <p:panel header="Nr. patients"  style="width:400px;height:300px">
+                    <p:outputLabel style="font-size:xx-large" value="#{statModel.nrPatients}"/>
+                </p:panel>
+                <p:panel header="Nr. final submissions"  style="width:400px;height:300px">
+                    <p:outputLabel style="font-size:xx-large" value="#{statModel.nrFinalSubmissions}"/>
+                </p:panel>
+                <p:panel header="Nr. draft submissions"  style="width:400px;height:300px">
+                    <p:outputLabel style="font-size:xx-large" value="#{statModel.nrDraftSubmissions}"/>
+                </p:panel>
+            </p:panelGrid>
+            <p:commandButton actionListener="#{statModel.refreshStats}" value="Refresh" update="belowmenu"/>
+
+        </h:panelGroup>
+
+    </h:form>
+</ui:composition>

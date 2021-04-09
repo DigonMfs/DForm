@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:form>
+        <h:panelGroup rendered="#{controllerBean.dataOutputScreenVisible}">
+            <p>Data output</p>
+            <p:selectOneMenu id="SlctOutTrans"
+                             value="#{modelBean.userSelectedOutTransId}"
+                             height="150px"
+                             >
+                <f:selectItems id="SlctOutTransItems" 
+                               value="#{modelBean.availableOutTransSelectItems}"/>
+                <p:ajax event="valueChange" update="belowmenu" listener="#{controllerBean.activeOutTransChanged}"/>
+            </p:selectOneMenu>
+        </h:panelGroup>
+    </h:form>
+    <h:form>
+        <h:panelGroup rendered="#{controllerBean.dataOutputScreenVisible}">
+            <p/>
+            <h:outputLink disabled="#{empty modelBean.selectedOutputTransformation or (modelBean.selectedOutputTransformation.id eq 0)}" value="#{modelBean.outputServletUrl}" >Download result filtered by transformation #{modelBean.selectedOutputTransformation.title}</h:outputLink>
+            <p/>
+            <p:outputLabel value="Generate new full transformation containing all fields of the current versions of all forms ...  "/>
+            <p:commandButton value="Generate" update="belowmenu" actionListener="#{controllerBean.genFullOutTrans}" ></p:commandButton>
+
+            <p/>
+            <p:inputTextarea autoResize="false"  rows="30" cols="100" value="#{modelBean.selectedOutputTransformation.xslt}"></p:inputTextarea>
+            <p/>
+            <p:messages />
+            <p/>
+            <p:commandButton value="Submit" actionListener="#{controllerBean.outTransEditorSubmit}" update="belowmenu"/>
+            <p:commandButton value="Delete" actionListener="#{controllerBean.outTransDelete}" update="belowmenu" />
+
+
+        </h:panelGroup>
+    </h:form>
+</ui:composition>

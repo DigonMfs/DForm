@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <h:panelGroup rendered="#{controllerBean.formEditVisible}">
+        <h1>Form editor </h1>
+        <h:panelGrid columns="2">
+            <h:form>
+                <ui:include src="../formselect.xhtml" />    
+                <h:panelGroup>
+                    <h:panelGrid columns="2">
+                        <h:outputText>Selected form : </h:outputText>
+                        <h:outputText value="#{modelBean.selectedForm.title}"/>
+                    </h:panelGrid>
+                    <p:commandButton actionListener="#{controllerBean.formSelectAction}" value="Select form" update="belowmenu"/>
+                </h:panelGroup>
+            </h:form>
+            <h:panelGroup>
+                <h:outputText>If parameter 'instance' is not specified (suggestion: REQUIRED multiple choice input), a single instance form is assumed (only one occurence of the form per subject possible)</h:outputText>
+            </h:panelGroup>
+        </h:panelGrid>
+        <h:form>
+        <p:dialog visible="true"  rendered="#{not empty modelBean.checkResultSelectedForm}">
+            <h:outputLabel value="Formulier kan niet werken : volgende verwijzingen staan in 'for'-attributen, maar er werd geen overeenkomstig 'id'-attribuut gevonden : #{modelBean.checkResultSelectedForm}"/>
+            <p:commandButton actionListener="#{controllerBean.clearResultFormEditor}" value="OK" update="belowmenu"/>
+        </p:dialog>
+        </h:form>
+        <h:panelGrid columns="2">
+            <h:form id="Edit"><!-- This form id is shown in the validation messages -->
+
+                <h:panelGroup>
+                    <h:panelGrid columns="2">
+                        <p:selectBooleanCheckbox  value="#{modelBean.selectedForm.markAsRegistrationForm}" itemLabel="Mark as (the single) registration form. Then the field 'name' is mandatory."/>
+                    </h:panelGrid>
+                    <p:inputTextarea autoResize="false" rows="30" cols="100" value="#{modelBean.selectedForm.formSource}"></p:inputTextarea>
+                    <p:messages />
+                    <p:commandButton value="Submit" actionListener="#{controllerBean.formEditorSubmit}" update="belowmenu"/>
+                </h:panelGroup>
+            </h:form>
+            <h:form>
+                <h:panelGroup>
+                    <h:panelGrid columns="2">
+                        <h:outputLabel for="Question">Question</h:outputLabel>
+                        <p:inputTextarea id="Question" value="#{formEditorModel.question}"/>
+                        <h:outputLabel for="Parameter">Parameter name</h:outputLabel>
+                        <p:inputTextarea id="Parameter" value="#{formEditorModel.parameter}"/>
+                        <h:panelGroup>
+                            <h:outputLabel for="Required">Required </h:outputLabel><br/>
+                            <h:outputLabel style="font-size:xx-small">Save as draft NOT possible as long as no value ! </h:outputLabel>
+                        </h:panelGroup>
+                        <p:selectBooleanCheckbox id="Required" value="#{formEditorModel.fieldRequired}"/>
+                        <h:outputLabel for="SlctInputFieldType">Input type</h:outputLabel>
+                        <p:selectOneMenu id="SlctInputFieldType" value="#{formEditorModel.inputFieldType}" valueChangeListener="#{formEditorController.inputFieldTypeChanged}">
+                            <f:selectItems id="SlctInputFieldTypeItms"
+                                           value="#{formEditorModel.inputFieldTypeItems}"/>
+                        </p:selectOneMenu>
+                        <h:outputLabel for="minVal">Minimum value</h:outputLabel>
+                        <p:inputTextarea id="minVal" disabled="#{not formEditorModel.numericInput}" value="#{formEditorModel.minValue}">
+                            <f:convertNumber for="minVal" maxFractionDigits="2" minFractionDigits="0" locale="BE" groupingUsed="true"/>
+                        </p:inputTextarea>
+                        <h:outputLabel for="maxVal">Maximum value</h:outputLabel>
+                        <p:inputTextarea id="maxVal" disabled="#{not formEditorModel.numericInput}" value="#{formEditorModel.maxValue}">
+                            <f:convertNumber for="maxVal" maxFractionDigits="2" minFractionDigits="0" locale="BE" groupingUsed="true"/>
+                        </p:inputTextarea>
+                        <h:panelGroup>
+                            <h:outputLabel for="multipleChoices">Choices</h:outputLabel><br/>
+                            <h:outputText style="font-size:xx-small">Format value:label, no other ':' allowed.</h:outputText>
+                        </h:panelGroup>
+                        <p:inputTextarea rows="5" id="multipleChoices" disabled="#{not formEditorModel.multipleChoiceInput}" value="#{formEditorModel.multipleChoices}"/>
+                    </h:panelGrid>
+                    <p:commandButton actionListener="#{formEditorController.updateXHTML}" value="Update code" update="belowmenu"/>
+                    <p:inputTextarea rows="10" cols="50" value="#{formEditorModel.preCode}"/>
+                </h:panelGroup>
+            </h:form>
+        </h:panelGrid>
+    </h:panelGroup>
+     
+    <p></p>
+</ui:composition>

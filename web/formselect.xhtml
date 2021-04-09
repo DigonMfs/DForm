@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
+    <p:dialog visible="#{controllerBean.formSelectVisible}" 
+              rendered="#{controllerBean.formSelectVisible}"
+              modal="true"
+              header="Choose a form"
+              closable="true" closeOnEscape="true"
+              hideEffect="fade"
+              showEffect="fade" >
+        <p:ajax event="close" listener="#{controllerBean.formselectPopupClose()}"/>
+
+            <h:panelGrid columns="1">
+                <p:selectOneMenu id="SlctForm"
+                                      value="#{modelBean.userSelectedFormId}"                                     
+                                      
+                                     >
+                    <f:selectItems id="SlctFormItems"
+                                   value="#{modelBean.availableFormsSelectItems}"/>
+                    <p:ajax event="itemSelect" listener="#{controllerBean.activeFormChanged}" update="belowmenu"/>
+                </p:selectOneMenu>
+            </h:panelGrid>
+       
+    </p:dialog>
+</ui:composition>

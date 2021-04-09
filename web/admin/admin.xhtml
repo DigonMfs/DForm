@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Administrator interface</title>
+        <h:outputStylesheet library="css" name="style.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    <h:body>
+
+        <h:form id="masterpw">
+            <h:panelGrid rendered="#{modelBean.masterPassword.masterPasswordShouldBeSet}" columns ="4">
+                <h:outputText value="Master password"/>
+                <p:inputText value="#{modelBean.masterPassword.masterPassword}"/>
+                <p:commandButton value="Set" actionListener="#{controllerBean.checkMasterPassword()}" update="@all"/>
+               <p:messages />
+             </h:panelGrid>
+
+        </h:form>
+        <h:form id="adminmenu">
+            <p:idleMonitor timeout="3600000" onidle="PF('idleDialog').show();" />
+            <p:dialog header="Sessie verlopen" widgetVar="idleDialog" closable="false" modal="true">
+                <h:outputText value="Door lange inactiviteit is uw sessie verlopen. Gelieve het scherm te 'vernieuwen' met de vernieuw-knop in de browser." />
+            </p:dialog>
+            <h:outputText value="#{controllerBean.controllerMessage}"> 
+            </h:outputText>
+            <p:menubar rendered="#{not modelBean.masterPassword.masterPasswordShouldBeSet}">
+                <p:menuitem value="Home" url="../index.xhtml" icon="ui-icon ui-icon-home"  ajax="false"/>
+                <p:menuitem value="Data output" id="DATA_OUTPUT_MENU" actionListener="#{controllerBean.menuAction}"  update="belowmenu"/>
+                <p:menuitem value="Edit forms" id="EDIT_FORMS_MENU" actionListener="#{controllerBean.menuAction}"   update="belowmenu"/>
+                <p:menuitem value="Users" id="USERS_MENU" actionListener="#{controllerBean.menuAction}"  update="belowmenu"/>
+                <p:menuitem value="Statistics" id="STATS_MENU" actionListener="#{controllerBean.menuAction}"  update="belowmenu"/>
+                <p:menuitem value="Log off" id="LOGOFF"  actionListener="#{controllerBean.menuAction}"  update="belowmenu"/>
+            </p:menubar>
+            <h:outputLink style="font-size:x-small;float:right;top:15px;right:20px;position:absolute;text-decoration:underline;" value="https://www.digon.be"><h:outputText value="Digon"/></h:outputLink>
+ 
+       
+        </h:form>
+        <h:panelGroup layout="block" id="belowmenu" rendered="#{not modelBean.masterPassword.masterPasswordShouldBeSet}">
+            <p:messages />
+
+
+
+            <ui:include src="formedit.xhtml"/> 
+            <ui:include src="dataoutputform.xhtml"/> 
+            <ui:include src="users.xhtml"/>
+            <ui:include src="stats.xhtml"/>
+        </h:panelGroup>
+    </h:body>
+</html>
