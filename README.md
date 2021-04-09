@@ -1,7 +1,7 @@
 # DForm form data collection interface
 
 ## Introduction
-This data entry system provides a secure web-based multi-user form-filling interface, a form design interface, data storage, and an output filter. The data can be exported in a standard format to a spreadsheet for further processing. Several forms can be created, and they are linked to "subjects". (Note that the subjects in the default setup presented here, are in the table "patients").
+This data entry system provides a secure web-based multi-user form-filling interface, a form design interface, data storage, and an output filter. The data can be exported in a standard format to a spreadsheet for further processing. Several forms can be created, and they are linked to "subjects". The subjects in the default setup are in the table "patients".
 
 ## Dependencies
 
@@ -42,6 +42,10 @@ Environment :
 
 
  * Optionally create a master password for encryption of all submitted data. If this is set, all submission-data will be AES-encrypted. If this password is lost, there is no way back. To set a master password "ChangeThisMasterPassword" with a salt "ThisIsASalt", do : insert into parameters (mp_hash,mp_salt) values (unhex(sha2("ChangeThisMasterPasswordThisIsASalt",256)),'ThisIsASalt');
+
+## More info
+More info can be found on the project home page :
+ https://www.digon.be/community/dform
 
 ## License
  * GNU Affero GPL version 3, see https://www.gnu.org
