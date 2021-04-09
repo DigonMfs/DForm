@@ -1,7 +1,7 @@
 # DForm form data collection interface
 
 ## Introduction
-This data entry system provides a secure web-based multi-user form-filling interface, a form design interface, data storage, and an output filter. The data can be exported in a standard format to a spreadsheet for further processing. Several forms can be created, and they are linked to "subjects". The subjects in the default setup are in the table "patients".
+This data entry system provides a secure web-based multi-user form-filling interface, a form design interface, data storage, and an output filter. The data can be exported in a standard format to a spreadsheet for further processing. Several forms can be created, and they are linked to "subjects". (Note that the subjects in the default setup presented here, are in the table "patients").
 
 ## Dependencies
 
