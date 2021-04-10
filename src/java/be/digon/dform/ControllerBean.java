@@ -4,6 +4,7 @@
  */
 package be.digon.dform;
 
+import static be.digon.dform.ControllerBean.facesMessage;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
@@ -93,7 +94,7 @@ public class ControllerBean implements Serializable {
     public void setUsersScreenVisible(boolean usersScreenVisible) {
         this.usersScreenVisible = usersScreenVisible;
     }
-    
+
     private boolean statsScreenVisible = false;
 
     public boolean isStatsScreenVisible() {
@@ -103,8 +104,7 @@ public class ControllerBean implements Serializable {
     public void setStatsScreenVisible(boolean statsScreenVisible) {
         this.statsScreenVisible = statsScreenVisible;
     }
-    
-    
+
     private boolean reportsScreenVisible = false;
 
     /**
@@ -236,16 +236,16 @@ public class ControllerBean implements Serializable {
     }
 
     public void instanceChanged() {
-        if (modelBean.getKeyValueMap().get("instance") == null){
-             facesMessage("Fout : geen parameter met de exacte naam 'instance'", FacesMessage.SEVERITY_ERROR);
+        if (modelBean.getKeyValueMap().get("instance") == null) {
+            facesMessage("Fout : geen parameter met de exacte naam 'instance'", FacesMessage.SEVERITY_ERROR);
         }
         try {
             String instance = (String) modelBean.getKeyValueMap().get("instance");
             modelBean.loadLastSubmission(instance);
             // Now all values may have been cleared, but the instance value must be set correctly again :
             modelBean.getKeyValueMap().put("instance", instance);
-             facesMessage("Instance "+modelBean.getKeyValueMap().get("instance")+" geladen.", FacesMessage.SEVERITY_INFO);
-            
+            facesMessage("Instance " + modelBean.getKeyValueMap().get("instance") + " geladen.", FacesMessage.SEVERITY_INFO);
+
         } catch (Exception e) {
             facesMessage("Error : " + e.getMessage(), FacesMessage.SEVERITY_ERROR);
             e.printStackTrace();
@@ -434,15 +434,36 @@ public class ControllerBean implements Serializable {
         return modelBean.getSelectedSubject().isNew();
     }
     private static final Logger LOG = Logger.getLogger(ControllerBean.class.getName());
-    
-    public void checkMasterPassword(){
-            try {
-                if (! modelBean.getMasterPassword().checkMasterPasswordCorrectlySet()){
-                    facesMessage("Incorrect password", FacesMessage.SEVERITY_WARN);
-                }
-            } catch (Exception e){
-                 facesMessage("Error : Check master password :  " + e.getMessage(), FacesMessage.SEVERITY_ERROR);
-                LOG.log(Level.SEVERE, "Check master password : ", e);
+
+    public void checkMasterPassword() {
+        try {
+            if (!modelBean.getMasterPassword().checkMasterPasswordCorrectlySet()) {
+                facesMessage("Incorrect password", FacesMessage.SEVERITY_WARN);
             }
+        } catch (Exception e) {
+            facesMessage("Error : Check master password :  " + e.getMessage(), FacesMessage.SEVERITY_ERROR);
+            LOG.log(Level.SEVERE, "Check master password : ", e);
+        }
+    }
+
+    public void encryptWithNewMasterPassword() {
+        try {
+            modelBean.encryptWithNewMasterPassword();
+
+        } catch (Exception e) {
+            facesMessage("Error : encrypt all :  " + e.getMessage(), FacesMessage.SEVERITY_ERROR);
+            LOG.log(Level.SEVERE, "Encrypt all : ", e);
+        }
+    }
+
+    public void decryptAllData() {
+        try {
+            modelBean.decryptAllData();
+
+        } catch (Exception e) {
+            facesMessage("Error : Decrypt all :  " + e.getMessage(), FacesMessage.SEVERITY_ERROR);
+            LOG.log(Level.SEVERE, "Decrypt all : ", e);
+        }
+
     }
 }

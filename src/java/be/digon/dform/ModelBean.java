@@ -36,6 +36,8 @@ public class ModelBean implements Serializable {
     
     @Inject private MasterPassword masterPassword;
 
+    private String newMasterPassword;
+
     /**
      * Creates a new instance of controllerbean
      */
@@ -400,6 +402,23 @@ public class ModelBean implements Serializable {
 
     public void setMasterPassword(MasterPassword masterPassword) {
         this.masterPassword = masterPassword;
+    }
+
+    void encryptWithNewMasterPassword() throws Exception{
+        dataConnector.encryptAllSubmissionsAndSetMasterPassword(newMasterPassword);
+
+    }
+
+    public String getNewMasterPassword() {
+        return newMasterPassword;
+    }
+
+    public void setNewMasterPassword(String newMasterPassword) {
+        this.newMasterPassword = newMasterPassword;
+    }
+
+    void decryptAllData()throws Exception{
+         dataConnector.decryptAllSubmissionsAndRemoveMasterPassword();
     }
 
 }

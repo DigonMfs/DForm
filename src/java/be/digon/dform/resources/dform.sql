@@ -72,6 +72,7 @@ DROP TABLE IF EXISTS `parameters`;
 CREATE TABLE `parameters` (
   `mp_hash` varbinary(100) DEFAULT NULL,
   `mp_salt` varchar(255) DEFAULT NULL
+  `mp_unlock` int not null DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

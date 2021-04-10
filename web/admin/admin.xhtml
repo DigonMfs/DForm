@@ -15,7 +15,7 @@
         <h:form id="masterpw">
             <h:panelGrid rendered="#{modelBean.masterPassword.masterPasswordShouldBeSet}" columns ="4">
                 <h:outputText value="Master password"/>
-                <p:inputText value="#{modelBean.masterPassword.masterPassword}"/>
+                <p:inputText type="password" value="#{modelBean.masterPassword.masterPassword}"/>
                 <p:commandButton value="Set" actionListener="#{controllerBean.checkMasterPassword()}" update="@all"/>
                <p:messages />
              </h:panelGrid>

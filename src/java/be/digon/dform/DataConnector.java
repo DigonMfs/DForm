@@ -22,6 +22,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -1490,6 +1491,78 @@ public class DataConnector implements Serializable {
             }
         }
         return subPerInstance;
+    }
+
+    /**
+     * Will encrypt all XML data in the submissions table, only when at this
+     * time their status is "not encrypted" (and no master password is set). It
+     * also sets the hash of the master password in the database. Everything
+     * occurs in one transaction, obviously. The encrypted data will be stored
+     * in formdata_aes, the unencrypted version in column formdata will be set
+     * to null. Do sufficient checks in order to avoid ending up with an
+     * unreadable database.
+     */
+    @Transactional(rollbackOn = Exception.class)
+    public void encryptAllSubmissionsAndSetMasterPassword(String password) throws Exception {
+        if (masterPassword.getUseMasterPassword()) {
+            throw new Exception("The database is already encrypted, since a master password hash is already set.");
+        }
+        masterPassword.throwIfEnDecryptionNotAllowed();
+        // First set the hash and the internal variables for the new master password : the encryption routines use it. Note that if anything fails later on, it should be reset.
+        masterPassword.storePasswordHash(password);
+        try (Connection con = getDFormPool().getConnection();
+                PreparedStatement rdSub = con.prepareStatement("select row_id,formdata, formdata_aes from submissions");
+                ResultSet rsSub = rdSub.executeQuery();
+                PreparedStatement wrSub = con.prepareStatement("update submissions set formdata_aes=?, formdata=null where row_id=?");) {
+            while (rsSub.next()) {
+                // Check if formdata_aes is null, otherwise : unexpected situation.
+                if (rsSub.getBytes("formdata_aes") != null) {
+                    throw new Exception("Encrypted data encountered, unexpected. Rolling back.");
+                }
+                wrSub.setBytes(1, masterPassword.aesEncrypt(rsSub.getString("formdata")));
+                wrSub.setInt(2, rsSub.getInt("row_id"));
+                wrSub.execute();
+            }
+
+        } catch (Exception e){
+            masterPassword.clearPasswordData();
+            throw new Exception(e); // Rethrow, so we get a rollback.
+        }
+
+    }
+
+    /**
+     * Will decrypt all XML data in the submissions table, only when at this
+     * time their status is "encrypted" (and a master password is set). It also
+     * deletes the hash of the master password in the database. Everything
+     * occurs in one transaction, obviously. The decrypted data will be stored
+     * in formdata, the encrypted version in column formdata will be set to
+     * null. Do sufficient checks in order to avoid ending up with an unreadable
+     * database.
+     */
+    @Transactional(rollbackOn = Exception.class)
+    public void decryptAllSubmissionsAndRemoveMasterPassword() throws Exception {
+        if (!masterPassword.getUseMasterPassword()) {
+            throw new Exception("The database is currently not encrypted, since no master password hash is set.");
+        }
+        masterPassword.throwIfEnDecryptionNotAllowed();
+        try (Connection con = getDFormPool().getConnection();
+                PreparedStatement rdSub = con.prepareStatement("select row_id,formdata, formdata_aes from submissions");
+                ResultSet rsSub = rdSub.executeQuery();
+                PreparedStatement wrSub = con.prepareStatement("update submissions set formdata_aes=null, formdata=? where row_id=?");) {
+            while (rsSub.next()) {
+                // Check if formdata_aes is null, otherwise : unexpected situation.
+                if (rsSub.getBytes("formdata") != null) {
+                    throw new Exception("Decrypted data encountered, unexpected. Rolling back.");
+                }
+                wrSub.setString(1, masterPassword.aesDecrypt(rsSub.getBytes("formdata_aes")));
+                wrSub.setInt(2, rsSub.getInt("row_id"));
+                wrSub.execute();
+            }
+
+        }
+        masterPassword.deletePasswordHash();
+
     }
 
 }

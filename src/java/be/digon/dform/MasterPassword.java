@@ -31,6 +31,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * Stores the database submissions in-memory master password, during the
@@ -52,6 +54,8 @@ public class MasterPassword {
     private String masterPassword = null;
     private Boolean useMasterPassword = false;
     private Boolean masterPasswordCorrectlySetCache = false;
+    
+    private SecureRandom secureRandom = new SecureRandom(); // May take a VERY long time to initialize. https://stackoverflow.com/questions/137212/how-to-deal-with-a-slow-securerandom-generator
 
     byte[] passwordHashReference = null;
     String passwordHashSaltString = null;
@@ -142,13 +146,18 @@ public class MasterPassword {
      * generated and stored in the encryption result. Different salt and IV for
      * each encryption block.
      *
+     * Note that if data is null, the return value will also be null (and hence
+     * a null value is not kept secret).
+     *
      * @param password
      * @param strKey
      * @return
      * @throws java.lang.Exception
      */
     public byte[] aesEncrypt(String data) throws Exception {
-        
+        if (data == null) {
+            return null; // This is not completely secret ...
+        }
         byte[] salt = generateNonce(SALT_LENGTH_BYTE);
         SecretKey key = getKeyFromPassword(masterPassword, salt);
         byte[] iv = generateNonce(IV_LENGTH_BYTE);
@@ -180,7 +189,7 @@ public class MasterPassword {
 
     public byte[] generateNonce(int nrBytes) {
         byte[] iv = new byte[nrBytes];
-        new SecureRandom().nextBytes(iv);
+        secureRandom.nextBytes(iv);
         return iv;
     }
 
@@ -196,10 +205,10 @@ public class MasterPassword {
      */
     public String aesDecrypt(byte[] data) throws Exception {
 
-        if (data == null){
+        if (data == null) {
             return null;
         }
-        
+
         ByteBuffer bb = ByteBuffer.wrap(data);
 
         byte[] iv = new byte[IV_LENGTH_BYTE];
@@ -221,4 +230,81 @@ public class MasterPassword {
         byte[] plainBytes = cipher.doFinal(cipherText);
         return new String(plainBytes, UTF_8);
     }
+
+    /**
+     * This stores a new master password. Make sure to encrypt the database submissions within the same transaction.
+     * A master password can only be set when in the parameter table a database administrator (with direct access to the database) has set mp_unlock to <> 0. This avoids a rogue application administrator to encrypt the database (or to decrypt it).
+     * Do sufficient checks to avoid ending up with an unreadable database.
+     * 
+     *
+     * @param newPassword
+     * @throws Exception
+     */
+    @Transactional(rollbackOn = Exception.class)
+    void storePasswordHash(String newPassword) throws Exception {
+        if (useMasterPassword) {
+            throw new Exception("A master password hash is already set.");
+        }
+        throwIfEnDecryptionNotAllowed();
+        try (Connection con = getDFormPool().getConnection();
+                PreparedStatement ps = con.prepareStatement("update parameters set mp_hash=?, mp_salt=?, mp_unlock=0 ");) {
+            byte[] passwordHashBytes = generateNonce(SALT_LENGTH_BYTE);
+            String tempPasswordHashSaltString = Hex.encodeHexString(passwordHashBytes);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            String pwAndHash = newPassword + tempPasswordHashSaltString;
+            byte[] encodedhash = digest.digest(pwAndHash.getBytes(UTF_8));
+            ps.setBytes(1, encodedhash);
+            ps.setString(2, tempPasswordHashSaltString);
+            ps.execute();
+
+            // And now : set this as the master password, and check, and rollback when error :
+            masterPassword = newPassword;
+            passwordHashReference = encodedhash;
+            passwordHashSaltString = tempPasswordHashSaltString;
+            useMasterPassword = true;
+            if (!checkMasterPasswordCorrectlySet()) {
+                clearPasswordData();
+                throw new Exception("Error setting password");
+            }
+        }
+    }
+
+    public void throwIfEnDecryptionNotAllowed() throws Exception{
+        try (Connection con = getDFormPool().getConnection();
+                ResultSet rsAllowed = con.prepareStatement("select mp_unlock from parameters limit 1").executeQuery();){
+            if (!rsAllowed.first() || (rsAllowed.getInt("mp_unlock")==0)) {
+                throw new Exception("Removing or setting master password prohibited by database administrator (parameters.mp_unlock=0 or no parameter rows exist).");
+            }
+        }     
+    }
+    
+    /**
+     * Do not call this without having unencrypted all data before, because the
+     * unencryption code will not run without the master password hash in place.
+     *
+     * @param newPassword
+     * @throws Exception
+     */
+    @Transactional(rollbackOn = Exception.class)
+    void deletePasswordHash() throws Exception {
+        throwIfEnDecryptionNotAllowed();
+        try (Connection con = getDFormPool().getConnection();
+                PreparedStatement ps = con.prepareStatement("update parameters set mp_hash=null, mp_salt=null,mp_unlock=0 ");) {
+            ps.execute();
+
+            // And now : set this as the master password, and check, and rollback when error :
+            masterPassword = null;
+            passwordHashReference = null;
+            passwordHashSaltString = null;
+        }
+    }
+
+    void clearPasswordData() {
+        masterPassword = null;
+        passwordHashReference = null;
+        passwordHashSaltString = null;
+        masterPasswordCorrectlySetCache = false;
+        useMasterPassword=false;
+    }
+
 }

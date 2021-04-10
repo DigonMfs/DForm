@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Database encryption interface</title>
+        <h:outputStylesheet library="css" name="style.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    <h:body>
+
+        <h:form id="masterpw">
+            <h:panelGrid id="encryptPanel" rendered="#{not modelBean.masterPassword.useMasterPassword}" columns ="1">
+                <h:outputText value="The database currently is not encrypted and protected by a master password. Encryption can only be performed from this screen when the database-administrator has set the parameter 'mp_unlock'. This is a security measure. Encrypt the database by setting a password here, and clicking 'Encrypt'."/>
+                <h:outputText value="Once encrypted, the data (=all previous submissions) can NOT be restored anymore without the password. After encryption, only encrypted data is backed up, so also the backups will be encrypted. "/>
+                <h:outputText value="The password is shown while you type it, so make sure no-one sees it, and make absolutely sure the exact password is recorded e.g. on paper and stored in a safe place. It is the only way to restore the data."/>
+                <h:outputText value="New master password"/>
+                <p:inputText value="#{modelBean.newMasterPassword}"/>
+                <p:commandButton value="Encrypt" actionListener="#{controllerBean.encryptWithNewMasterPassword()}" onclick="PF('encryptButton').disable()" update="@all" widgetVar="encryptButton"/>
+                <h:outputText value="Write down the exact (!) password before clicking 'Encrypt', and store it in a safe place."/>
+                <h:outputText value="Processing may take VERY long. Do not interrupt !."/>
+                <p:messages />
+             </h:panelGrid>
+            
+            <h:panelGrid rendered="#{modelBean.masterPassword.useMasterPassword and modelBean.masterPassword.masterPasswordCorrectlySetCache}" columns ="1">
+                <h:outputText value="The database currently is encrypted and protected by a master password. Decryption can only be performed from this screen when the database-administrator has set the parameter 'mp_unlock'. This is a security measure. "/>
+           
+                <p:commandButton value="Decrypt" actionListener="#{controllerBean.decryptAllData()}" update="@all"  onclick="PF('decryptButton').disable()" widgetVar="decryptButton"/>
+                <h:outputText value="Processing may take VERY long. Do not interrupt !."/>
+                <p:messages />
+             </h:panelGrid>
+
+        </h:form>
+       
+    </h:body>
+</html>
