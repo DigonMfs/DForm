@@ -45,7 +45,7 @@ Environment :
 
 ## More info
 More info can be found on the project home page :
- https://www.digon.be/community/dform
+ https://www.digon.be/dform
 
 ## License
  * GNU Affero GPL version 3, see https://www.gnu.org
