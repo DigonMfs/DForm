@@ -32,9 +32,11 @@ import javax.inject.Named;
 @Named
 public class ModelBean implements Serializable {
 
-    @Inject private DataConnector dataConnector ;
-    
-    @Inject private MasterPassword masterPassword;
+    @Inject
+    private DataConnector dataConnector;
+
+    @Inject
+    private MasterPassword masterPassword;
 
     private String newMasterPassword;
 
@@ -42,7 +44,7 @@ public class ModelBean implements Serializable {
      * Creates a new instance of controllerbean
      */
     public ModelBean() {
-       
+
     }
 
     private String getServletPrefix() {
@@ -111,7 +113,6 @@ public class ModelBean implements Serializable {
                         selectedForm = f;
 
                         // Find an instance that was already submitted :
-
                         //loadLastSubmission(getSelectedInstance());
                         loadLastSubmittedInstance();
                         break;
@@ -121,7 +122,7 @@ public class ModelBean implements Serializable {
             // Here we have a selectedForm-object, so we can set userSelectedFormId to null, and then when the selection dialog is displayed later on,
             // there will be no selection, and if the user selects the same thing as is selected now, a valuechangeevent will occur. Otherwise, the user can not
             // select the same form, and the view logic depends on the changelistener in the form select popupt.
-         setUserSelectedFormId(null);     
+            setUserSelectedFormId(null);
         }
         return selectedForm;
     }
@@ -166,6 +167,22 @@ public class ModelBean implements Serializable {
             if (xmlSubmissionData != null) {
                 TreeMap<String, Object> keyValueMap = xmlSubmissionData.getKeyValueMap();
                 if (keyValueMap != null) {
+                    
+                    // Bugfix in data
+                    // Overrule "instance" variable in keyvaluemap (xml-blob) with "instance" variable from database-column.
+                    // This gradually cleans up the results from a former bug, where sometimes the registration form was saved with an instance different from __singleinstance__ .
+                    // This happened when a form with an "instance" was shown, but not "closed" or "saved" before creating a new subject. The key-value map of the audiology-form (including the instance) then remained present in the 
+                    // new registration form.
+                    String desiredInstance = xmlSubmissionData.getInstance();
+                    if (keyValueMap.containsKey("instance")) {
+                        if ((desiredInstance == null) || ("__singleinstance__".equals(desiredInstance))) {
+                            keyValueMap.remove("instance");
+                        } else if (!desiredInstance.equals(keyValueMap.get("instance"))) {
+                            keyValueMap.put("instance", desiredInstance);
+                        }
+                    } 
+                    // End bugfix in data
+                    
                     setKeyValueMap(keyValueMap);
                     setFinalSubmission(xmlSubmissionData.isFinalSubmission());
 
@@ -185,6 +202,9 @@ public class ModelBean implements Serializable {
         // if selected by this method, then setUserSelectedFormId is set to null, because else it has priority
         userSelectedFormId = null;
         this.selectedForm = form;
+        if (selectedForm != null){
+           loadLastSubmittedInstance();
+        }
     }
     private OutputTransformation selectedOutputTransformation = null;
 
@@ -274,7 +294,7 @@ public class ModelBean implements Serializable {
     }
 
     public SelectItem[] getAvailableOutTransSelectItems() {
-        List<OutputTransformation> slist=getAvailableOutputTransformations().stream().sorted(Comparator.comparing(OutputTransformation::getTitle).reversed()).collect(Collectors.toList());
+        List<OutputTransformation> slist = getAvailableOutputTransformations().stream().sorted(Comparator.comparing(OutputTransformation::getTitle).reversed()).collect(Collectors.toList());
         SelectItem[] available = new SelectItem[slist.size()];
         for (int i = 0; i < available.length; i++) {
             OutputTransformation ot = slist.get(i);
@@ -315,8 +335,7 @@ public class ModelBean implements Serializable {
         List<FormSubject> asl = getMatchingSubjectsList();
         return asl;
     }
-    
-    
+
     private FormSubject selectedSubjectAutoComplete;
 
     public FormSubject getSelectedSubjectAutoComplete() {
@@ -326,8 +345,7 @@ public class ModelBean implements Serializable {
     public void setSelectedSubjectAutoComplete(FormSubject selectedSubjectAutoComplete) {
         this.selectedSubjectAutoComplete = selectedSubjectAutoComplete;
     }
-    
-    
+
     private String subjectSearchWord;
 
     public String getSubjectSearchWord() {
@@ -338,12 +356,13 @@ public class ModelBean implements Serializable {
         this.subjectSearchWord = subjectSearchWord;
         matchingSubjectsList = null;
     }
-    
-    public List<FormSubject> handleSubjectSearchWord(String subjectSearchWord){
+
+    public List<FormSubject> handleSubjectSearchWord(String subjectSearchWord) {
         setSubjectSearchWord(subjectSearchWord);
         return getSubjectAutoCompleteList();
-        
+
     }
+
     public String getSelectedInstance() {
         return (String) keyValueMap.get("instance");
     }
@@ -356,7 +375,7 @@ public class ModelBean implements Serializable {
     public void setFinalSubmission(boolean finalSubmission) {
         this.finalSubmission = finalSubmission;
     }
-    
+
     public void selectNewSubject(FormSubject s) {
         setSelectedSubject(s);
         setUserSelectedFormId(null);
@@ -373,27 +392,27 @@ public class ModelBean implements Serializable {
     public void setCheckResultSelectedForm(String checkResultSelectedForm) {
         this.checkResultSelectedForm = checkResultSelectedForm;
     }
-    
+
     void generateCheckResultSelectedForm() {
         StringBuilder cr = new StringBuilder();
-        if (getSelectedForm() != null){
+        if (getSelectedForm() != null) {
             // List all "for"-attributes, and make sure they can be found as "id". Primefaces fails to render a page if they don't exist as ids.
             Pattern pattern = Pattern.compile(" for=\"(\\w+)\"[ >]");
             Matcher matcher = pattern.matcher(getSelectedForm().getFormSource());
-            while (matcher.find()){
+            while (matcher.find()) {
                 // try to find id somewhere :
-                Pattern idPattern = Pattern.compile(" id=\""+matcher.group(1)+"\"[ >]");
+                Pattern idPattern = Pattern.compile(" id=\"" + matcher.group(1) + "\"[ >]");
                 Matcher idMatcher = idPattern.matcher(getSelectedForm().getFormSource());
-                if (!idMatcher.find()){
+                if (!idMatcher.find()) {
                     cr.append(matcher.group(1));
                     cr.append(", ");
                 }
             }
-            
+
         }
-        
+
         checkResultSelectedForm = cr.toString();
-       
+
     }
 
     public MasterPassword getMasterPassword() {
@@ -404,7 +423,7 @@ public class ModelBean implements Serializable {
         this.masterPassword = masterPassword;
     }
 
-    void encryptWithNewMasterPassword() throws Exception{
+    void encryptWithNewMasterPassword() throws Exception {
         dataConnector.encryptAllSubmissionsAndSetMasterPassword(newMasterPassword);
 
     }
@@ -417,8 +436,8 @@ public class ModelBean implements Serializable {
         this.newMasterPassword = newMasterPassword;
     }
 
-    void decryptAllData()throws Exception{
-         dataConnector.decryptAllSubmissionsAndRemoveMasterPassword();
+    void decryptAllData() throws Exception {
+        dataConnector.decryptAllSubmissionsAndRemoveMasterPassword();
     }
 
 }

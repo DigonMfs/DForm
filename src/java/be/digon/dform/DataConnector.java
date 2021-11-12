@@ -914,7 +914,7 @@ public class DataConnector implements Serializable {
                 submission.setId(rs.getInt("row_id"));
                 submission.setSubjectId(rs.getInt("subject_id"));
                 submission.setSubjectAlfacode(rs.getString("alfacode"));
-                submission.setInstance(rs.getString("instance"));
+                submission.setInstance(rs.getString("instance")); // instance from database column
                 if (masterPassword.getUseMasterPassword()) {
                     submission.setXml(masterPassword.aesDecrypt(rs.getBytes("formdata_aes")));
                 } else {
@@ -1504,6 +1504,9 @@ public class DataConnector implements Serializable {
      */
     @Transactional(rollbackOn = Exception.class)
     public void encryptAllSubmissionsAndSetMasterPassword(String password) throws Exception {
+        if (password==null || password.length() < 5){
+            throw new Exception("Password length is < 5");
+        }
         if (masterPassword.getUseMasterPassword()) {
             throw new Exception("The database is already encrypted, since a master password hash is already set.");
         }

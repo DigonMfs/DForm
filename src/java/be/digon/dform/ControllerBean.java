@@ -414,10 +414,11 @@ public class ControllerBean implements Serializable {
         if (registration == null) {
             facesMessage("Error : no registration form found. ", FacesMessage.SEVERITY_ERROR);
         } else {
+            modelBean.setSelectedSubject(new FormSubject());
             modelBean.setSelectedForm(registration);
             setFormVisible(true);
             setFormSelectVisible(false);
-            modelBean.setSelectedSubject(new FormSubject());
+            setReportsScreenVisible(false);
             setSelectingSubject(false);
         }
     }
